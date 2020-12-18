@@ -20,7 +20,7 @@ AnimatedGIF gif;
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
 
-// Draw a line of image directly on the LCD
+// Draw a line of image to a Sprite buffer and then render it
 void GIFDraw(GIFDRAW *pDraw)
 {
   uint8_t *s;
@@ -68,7 +68,7 @@ void GIFDraw(GIFDRAW *pDraw)
       if (iCount) // any opaque pixels?
       {
         for (int xOffset = 0; xOffset < iCount; xOffset++ ) {
-          spr.drawPixel(x + xOffset, y, usTemp[xOffset]);
+          spr.drawPixel(x + xOffset, 0, usTemp[xOffset]);
         }
         x += iCount;
         iCount = 0;
@@ -96,14 +96,13 @@ void GIFDraw(GIFDRAW *pDraw)
     // Translate the 8-bit pixels through the RGB565 palette (already byte reversed)
     for (x = 0; x < pDraw->iWidth; x++)
     {
-      spr.drawPixel(x, y, usPalette[*s++]);
+      spr.drawPixel(x, 0, usPalette[*s++]);
     }
   }
-  if (pDraw->y == pDraw->iHeight - 1) { // last line, render it to the display
-    int cx = (DISPLAY_WIDTH - pDraw->iWidth) / 2;
-    int cy = (DISPLAY_HEIGHT - pDraw->iHeight) / 2;    
-    spr.pushSprite(cx, cy); // center image
-  }
+
+  int cx = (DISPLAY_WIDTH - pDraw->iWidth) / 2;
+  int cy = (DISPLAY_HEIGHT - pDraw->iHeight) / 2 + pDraw->y;    
+  spr.pushSprite(cx, cy);
 } /* GIFDraw() */
 
 void setup() {  
@@ -111,6 +110,7 @@ void setup() {
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);
   gif.begin(LITTLE_ENDIAN_PIXELS);
+  spr.createSprite(DISPLAY_WIDTH, 1);
 }
 
 void loop()
@@ -118,11 +118,9 @@ void loop()
   // Put your main code here, to run repeatedly:
   if (gif.open((uint8_t *)GIF_IMAGE, sizeof(GIF_IMAGE), GIFDraw))
   {
-    spr.createSprite(gif.getCanvasWidth(), gif.getCanvasHeight());
     while (gif.playFrame(true, NULL)) {
       yield();
-    }
-    spr.deleteSprite();
+    }    
     gif.close();
   }
 }
