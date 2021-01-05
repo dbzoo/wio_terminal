@@ -40,7 +40,7 @@ void loop()
   lox.rangingTest(&measure, false);
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
-    tft.fillRect(40,130,110,80,TFT_BLACK);
+    tft.fillRect(40,130,120,80,TFT_BLACK);
     char str[12];
     (void) sprintf(str, "% 5d", measure.RangeMilliMeter);
     tft.drawString(str, 40, 150, 1);
