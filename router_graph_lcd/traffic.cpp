@@ -90,14 +90,9 @@ static void setup_snmp() {
   snmp.begin();      // start the SNMP Manager
 
   // Create a handler for each of the OID  
-  snmp.addCounter32Handler(oidInOctetsCount32, &inOctetsResponse);
-  snmp.addCounter32Handler(oidOutOctetsCount32, &outOctetsResponse);
-  snmp.addTimestampHandler(oidUptime, &uptime);
-
-  // Create the call back ID's for each OID
-  callbackInOctets = snmp.findCallback(oidInOctetsCount32);
-  callbackOutOctets = snmp.findCallback(oidOutOctetsCount32);
-  callbackUptime = snmp.findCallback(oidUptime);
+  callbackInOctets  = snmp.addCounter32Handler(router, oidInOctetsCount32, &inOctetsResponse);
+  callbackOutOctets  = snmp.addCounter32Handler(router, oidOutOctetsCount32, &outOctetsResponse);
+  callbackUptime  =  snmp.addTimestampHandler(router, oidUptime, &uptime);
 }
 
 static void setup_ui() {  
