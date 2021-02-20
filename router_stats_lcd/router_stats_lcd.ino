@@ -61,6 +61,10 @@ ValueCallback *callbackOutOctets;
 ValueCallback *callbackUptime;
 //************************************
 
+void clearScreen() {  
+  tft.fillRect(0, 50, 320, 190, TFT_BLACK); // Except the title
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -73,7 +77,13 @@ void setup()
   tft.begin();
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);
-  tft.setTextSize(2);
+
+  tft.setFreeFont(&FreeSansBold18pt7b);
+  tft.fillRoundRect(0, 0, 320, 50, 10, TFT_NAVY);
+  tft.setTextColor(TFT_WHITE);
+  tft.drawString("Internet Monitor", 20, 10 , 1);
+
+  tft.setFreeFont(&FreeSansBold12pt7b);
   tft.setCursor((320 - tft.textWidth("Connecting to Wi-Fi.."))/2, 120);
   tft.print("Connecting to Wi-Fi..");
 
@@ -91,8 +101,7 @@ void setup()
   Serial.print("Connected to ");
   Serial.println(ssid);
     
-  tft.fillScreen(TFT_BLACK);
-
+  clearScreen();
   String myip = WiFi.localIP().toString();
   int t_size = tft.textWidth("Connected ") + tft.textWidth(myip);
   tft.setCursor((320 - t_size)/2, 120);
@@ -102,15 +111,9 @@ void setup()
   snmp.setUDP(&udp); // give snmp a pointer to the UDP object
   snmp.begin();      // start the SNMP Manager
 
-  // Create a handler for each of the OID  
-  snmp.addCounter32Handler(oidInOctetsCount32, &inOctetsResponse);
-  snmp.addCounter32Handler(oidOutOctetsCount32, &outOctetsResponse);
-  snmp.addTimestampHandler(oidUptime, &uptime);
-
-  // Create the call back ID's for each OID
-  callbackInOctets = snmp.findCallback(oidInOctetsCount32);
-  callbackOutOctets = snmp.findCallback(oidOutOctetsCount32);
-  callbackUptime = snmp.findCallback(oidUptime);
+  callbackInOctets  = snmp.addCounter32Handler(router, oidInOctetsCount32, &inOctetsResponse);
+  callbackOutOctets  = snmp.addCounter32Handler(router, oidOutOctetsCount32, &outOctetsResponse);
+  callbackUptime  =  snmp.addTimestampHandler(router, oidUptime, &uptime);
 }
 
 void loop()
@@ -146,6 +149,8 @@ void doSNMPCalculations()
     if(lastUptime) { // Not our first poll
       Serial.println("Poll did not update data");
       tft.drawString("Poll did not update data", 0, 188);
+    } else {
+      tft.drawString("Waiting for data", 0, 188);
     }
     return;
   }
@@ -158,14 +163,13 @@ void doSNMPCalculations()
   {
     uint32_t in_bps = floor((inOctetsResponse-lastInOctets)/(uptime-lastUptime))*100*8;
     uint32_t out_bps = floor((outOctetsResponse-lastOutOctets)/(uptime-lastUptime))*100*8;
-
-    tft.setTextSize(2);
+    
     tft.setTextColor(TFT_WHITE);
-    tft.fillScreen(TFT_BLACK);
-    tft.drawString("Rx: ", 60, 68);
-    tft.drawString("Tx: ", 60, 128);
-    tft_speed(in_bps, 68);
-    tft_speed(out_bps, 128);
+    clearScreen();
+    tft.drawString("Rx: ", 60, 88);
+    tft.drawString("Tx: ", 60, 148);
+    tft_speed(in_bps, 88);
+    tft_speed(out_bps, 148);
   }
   // Update last samples
   lastUptime = uptime;
