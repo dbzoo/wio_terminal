@@ -8,7 +8,7 @@
 
 #define LVGL_TICK_PERIOD 5 // ms
 
-const char *ssid = ""your-ssid";
+const char *ssid = "your-ssid";
 const char *password = "your-password";
 
 static lv_disp_buf_t disp_buf;
