@@ -134,9 +134,9 @@ static void setup_ui() {
   lv_obj_set_pos(chart, 0, LV_TRAFFIC_TITLE_HEIGHT);
   lv_obj_set_size(chart, LV_HOR_RES, LV_VER_RES - LV_TRAFFIC_TITLE_HEIGHT);
   lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
-  lv_chart_set_range(chart, 0, 200);
+  lv_chart_set_range(chart, 0, 400); // 400 Mbps max.
 
-  const char *ytick="200\n150\n100\n50\n0"; // 0 - 200 Mbps
+  const char *ytick="400\n350\n300\n250\n200\n150\n100\n50\n0"; // 0 - 400 Mbps
   lv_chart_set_y_tick_texts(chart,ytick, 0, LV_CHART_AXIS_DRAW_LAST_TICK);
   lv_chart_set_y_tick_length(chart, LV_CHART_TICK_LENGTH_AUTO, LV_CHART_TICK_LENGTH_AUTO);
 
